@@ -1,7 +1,7 @@
 #own
 me.py
 SpotifyApiPackage/__pycache__/
-.vscode/
+.vscode/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
