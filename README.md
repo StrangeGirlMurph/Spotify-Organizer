@@ -1,2 +1,2 @@
 # Spotify-Organizer
-Python program to organize your own Spotify library.
+A python program to organize your own Spotify library.
