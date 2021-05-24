@@ -88,7 +88,7 @@ def Create_a_Playlist(name):
         description = descriptions_audio_features[name]
         category = "audio_feature"
     elif name in users_saved_tracks["artists"]:
-        description = "All my favorite songs of " + name + " <3"
+        description = "All my favourite songs by or with " + name + " <3"
         category = "artist"
     else:
         print("You don't have any songs of that artist in your library or you misspelled the artist or audio feature.")
