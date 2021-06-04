@@ -1,76 +1,54 @@
 import requests
+import json
 
 
-def Get_a_Users_Top_Tracks(self, time_range=""):
-    # time_range:
-    # long_term all time
-    # medium_term approximately last 6 months
-    # short_term approximately last 4 weeks
+def Get_a_Users_Top_Tracks(self):
+    top_tracks = {
+        "long_term": [],
+        "medium_term": [],
+        "short_term": []
+    }
 
-    if time_range == "long":
-        time_range = "long_term"
-    elif time_range == "mid":
-        time_range = "medium_term"
-    elif time_range == "short":
-        time_range = "short_term"
-    else:
-        time_range = "long_term"
+    print(">> getting user's top tracks...")
 
-    users_top_tracks = [time_range, []]
+    for time_range in self.time_ranges:
+        query = "https://api.spotify.com/v1/me/top/tracks?offset=0&limit=50&time_range={}".format(
+            time_range)
 
-    print(">> getting the users top tracks (time range: " + time_range + ")...")
+        while query != None:
+            last_response = requests.get(
+                query,
+                headers={"Content-Type": "application/json",
+                         "Authorization": "Bearer {}".format(self.spotify_token)}
+            ).json()
+            query = last_response["next"]
 
-    query = "https://api.spotify.com/v1/me/top/tracks?offset=0&limit=50&time_range={}".format(
-        time_range)
+            top_tracks[time_range].extend(last_response["items"])
 
-    global response_users_top_tracks
-    while query != None:
-        response_users_top_tracks = requests.get(
-            query,
-            headers={"Content-Type": "application/json",
-                     "Authorization": "Bearer {}".format(self.spotify_token)}
-        ).json()
-
-        query = response_users_top_tracks["next"]
-
-        for track in response_users_top_tracks["items"]:
-            users_top_tracks[1].append(track["name"])
-
-    return users_top_tracks
+    return top_tracks
 
 
-def Get_a_Users_Top_Artists(self, time_range=""):
-    # time_range:
-    # long_term all time
-    # medium_term approximately last 6 months
-    # short_term approximately last 4 weeks
+def Get_a_Users_Top_Artists(self):
+    top_artists = {
+        "long_term": [],
+        "medium_term": [],
+        "short_term": []
+    }
 
-    if time_range == "long":
-        time_range = "long_term"
-    elif time_range == "mid":
-        time_range = "medium_term"
-    elif time_range == "short":
-        time_range = "short_term"
-    else:
-        time_range = "long_term"
+    print(">> getting user's top artists...")
 
-    users_top_artists = [time_range, []]
+    for time_range in self.time_ranges:
+        query = "https://api.spotify.com/v1/me/top/artists?offset=0&limit=50&time_range={}".format(
+            time_range)
 
-    print(">> getting the users top artists(time range: " + time_range + ")...")
+        while query != None:
+            last_response = requests.get(
+                query,
+                headers={"Content-Type": "application/json",
+                         "Authorization": "Bearer {}".format(self.spotify_token)}
+            ).json()
+            query = last_response["next"]
 
-    query = "https://api.spotify.com/v1/me/top/artists?offset=0&limit=50&time_range={}".format(
-        time_range)
+            top_artists[time_range].extend(last_response["items"])
 
-    while query != None:
-        response_users_top_artists = requests.get(
-            query,
-            headers={"Content-Type": "application/json",
-                     "Authorization": "Bearer {}".format(self.spotify_token)}
-        ).json()
-
-        query = response_users_top_artists["next"]
-
-        for artist in response_users_top_artists["items"]:
-            users_top_artists[1].append(artist["name"])
-
-    return users_top_artists
+    return top_artists

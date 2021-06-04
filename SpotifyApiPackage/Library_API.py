@@ -3,31 +3,21 @@ import pandas as pd
 
 
 def Get_Users_Saved_Tracks(self):
-    users_saved_tracks = []
+    songs = []
 
-    print(">> getting the saved tracks of the user... ")
+    print(">> getting user's saved tracks...")
 
     query = "https://api.spotify.com/v1/me/tracks?offset=0&limit=50"
 
     while query != None:
-        last_request = requests.get(
+        last_response = requests.get(
             query,
             headers={"Content-Type": "application/json",
                      "Authorization": "Bearer {}".format(self.spotify_token)}
         ).json()
 
-        query = last_request["next"]
+        query = last_response["next"]
 
-        for item in last_request["items"]:
-            song = item["track"]
-            users_saved_tracks.append([
-                song["name"],
-                [artist["name"] for artist in song["artists"]],
-                song["album"]["name"],
-                song["popularity"],
-                song["explicit"],
-                song["uri"],
-                song["id"]
-            ])
+        songs.extend(last_response["items"])
 
-    return pd.DataFrame(users_saved_tracks, columns=["songname", "artists", "albumname", "popularity", "explicit", "uri", "id"])
+    return songs
