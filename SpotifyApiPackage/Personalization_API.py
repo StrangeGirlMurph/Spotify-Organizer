@@ -1,5 +1,4 @@
 import requests
-import json
 
 
 def Get_a_Users_Top_Tracks(self):

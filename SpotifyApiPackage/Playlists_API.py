@@ -59,11 +59,11 @@ def Replace_a_Playlists_Items(playlist_id, name, category):
         print(">> finished")
 
 
-def Get_a_List_of_Current_Users_Playlists():
+def Get_a_List_of_Current_Users_Playlists(self):
     global users_playlists
     users_playlists = {}
 
-    print(">> getting the playlists of the user...")
+    print(">> getting user's current playlists...")
 
     query = "https://api.spotify.com/v1/me/playlists"
 

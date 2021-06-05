@@ -40,8 +40,9 @@ class SpotifyUser:
         self.spotify_token = response_json["access_token"]
 
     def get_all_data(self):
-
-        print(self.users_saved_tracks.head())
+        self.collect_users_saved_tracks()
+        self.collect_users_top_tracks()
+        self.collect_users_top_artists()
 
     def collect_users_saved_tracks(self):
         items = Get_Users_Saved_Tracks(self)
@@ -53,8 +54,6 @@ class SpotifyUser:
 
         self.users_saved_tracks = pd.DataFrame(
             users_saved_tracks, columns=self.columns_for_song_dataframe)
-
-        print(self.users_saved_tracks.head())
 
     def collect_users_top_tracks(self):
         dict_with_items = Get_a_Users_Top_Tracks(self)
@@ -73,8 +72,6 @@ class SpotifyUser:
             self.users_top_tracks[range] = pd.DataFrame(
                 users_top_tracks[range], columns=self.columns_for_song_dataframe)
 
-        print(self.users_top_tracks["long_term"].head())
-
     def collect_users_top_artists(self):
         dict_with_items = Get_a_Users_Top_Artists(self)
         users_top_artists = {
@@ -91,8 +88,6 @@ class SpotifyUser:
 
             self.users_top_artists[range] = pd.DataFrame(
                 users_top_artists[range], columns=self.columns_for_artist_datafram)
-
-        print(self.users_top_artists["long_term"].head())
 
     def filtered_list_from_track(self, track):
         # returns the most important parts of a track as a list
