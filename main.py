@@ -8,3 +8,4 @@ User = SpotifyUser(
 )
 
 User.get_all_data()
+User.generate_a_playlist_for_an_artist("Oliver Tree")

@@ -1,122 +1,104 @@
 import requests
+import json
+import numpy as np
+import pandas as pd
 
 
-def Add_Items_to_a_Playlist(playlist_id, name, category):
-    # add all songs to new playlist
+def Add_Items_to_a_Playlist(self, playlist_id, songs):
     print(">> adding the items to the playlist...")
 
-    global response_add_songs
-    if category == "artist":
+    # uris from dataframe to a numpy array
+    uris = songs["uri"].to_numpy()
+    # split list of uris in fitting pieces
+    uris = [uris[i:i + 100] for i in range(0, len(uris), 100)]
+    # make a comma separated string out of them
+    for i, val in enumerate(uris):
+        uris[i] = ','.join(val)
+
+    for songs in uris:
         query = "https://api.spotify.com/v1/playlists/{}/tracks?uris={}".format(
-            playlist_id, users_saved_tracks["artists"][name])
-        response_add_songs = requests.post(
+            playlist_id, songs)
+
+        response = requests.post(
             query,
             headers={"Content-Type": "application/json",
-                     "Authorization": "Bearer {}".format(rf.spotify_token)}
+                     "Authorization": "Bearer {}".format(self.spotify_token)}
         ).json()
-    elif category == "audio_feature":
-        for songs in users_audio_features["song_uris"][name]:
-            query = "https://api.spotify.com/v1/playlists/{}/tracks?uris={}".format(
-                playlist_id, songs)
 
-            response_add_songs = requests.post(
-                query,
-                headers={"Content-Type": "application/json",
-                         "Authorization": "Bearer {}".format(rf.spotify_token)}
-            ).json()
-
-    if "error" in response_add_songs:
-        print("the following error accured:")
-        print(response_add_songs["error"])
+    if "error" in response:
+        print(f"the following error accured: {response['error']}")
 
 
-def Replace_a_Playlists_Items(playlist_id, name, category):
+def Replace_a_Playlists_Items(self, playlist_id, songs):
     print(">> replacing the items in the playlist...")
 
-    global response_replace_songs
-    if category == "artist":
+    # uris from dataframe to a numpy array
+    uris = songs["uri"].to_numpy()
+    # split list of uris in fitting pieces
+    uris = [uris[i:i + 100] for i in range(0, len(uris), 100)]
+    # make a comma separated string out of them
+    for i, val in enumerate(uris):
+        uris[i] = ','.join(val)
+
+    for songs in uris:
         query = "https://api.spotify.com/v1/playlists/{}/tracks?uris={}".format(
-            playlist_id, users_saved_tracks["artists"][name])
-        response_replace_songs = requests.put(
+            playlist_id, songs)
+
+        response = requests.put(
             query,
             headers={"Content-Type": "application/json",
-                     "Authorization": "Bearer {}".format(rf.spotify_token)}
+                     "Authorization": "Bearer {}".format(self.spotify_token)}
         ).json()
-    elif category == "audio_feature":
-        for songs in users_audio_features["song_uris"][name]:
-            query = "https://api.spotify.com/v1/playlists/{}/tracks?uris={}".format(
-                playlist_id, songs)
-            response_replace_songs = requests.put(
-                query,
-                headers={"Content-Type": "application/json",
-                         "Authorization": "Bearer {}".format(rf.spotify_token)}
-            ).json()
 
-    if "error" in response_replace_songs:
-        print("the following error accured:")
-        print(response_replace_songs["error"])
-    else:
-        print(">> finished")
+    if "error" in response:
+        print(f"the following error accured: {response['error']}")
 
 
 def Get_a_List_of_Current_Users_Playlists(self):
-    global users_playlists
-    users_playlists = {}
+    playlists = []
 
     print(">> getting user's current playlists...")
 
     query = "https://api.spotify.com/v1/me/playlists"
 
-    global response_users_playlists
     while query != None:
-        response_users_playlists = requests.get(
+        last_response = requests.get(
             query,
             headers={"Content-Type": "application/json",
-                     "Authorization": "Bearer {}".format(rf.spotify_token)}
+                     "Authorization": "Bearer {}".format(self.spotify_token)}
         ).json()
 
-        query = response_users_playlists["next"]
+        query = last_response["next"]
 
-        for playlist in response_users_playlists["items"]:
-            users_playlists[playlist["name"]] = playlist["id"]
+        playlists.extend(last_response["items"])
+
+    return playlists
 
 
-def Create_a_Playlist(name):
-    print(">> creating the playlist... for", name)
+def Create_a_Playlist(self, name, description, public=False):
+    # name String
+    # description String
+    # public Bool
 
-    if name in descriptions_audio_features:
-        description = descriptions_audio_features[name]
-        category = "audio_feature"
-    elif name in users_saved_tracks["artists"]:
-        description = "All my favourite songs by or with " + name + " <3"
-        category = "artist"
-    else:
-        print("You don't have any songs of that artist in your library or you misspelled the artist or audio feature.")
-        return
-
-    if name in users_playlists:
-        print("The Playlist for the artist or audio feature already exists.")
-        return replace_playlists_items(users_playlists[name], name, category)
+    print(">> creating the playlist...")
 
     query = "https://api.spotify.com/v1/users/{}/playlists".format(
-        users_spotify_id)
+        self.users_spotify_id)
 
     request_body = json.dumps({
         "name": name,
         "description": description,
-        "public": False
+        "public": public
     })
 
-    global response_create_playlist
-    response_create_playlist = requests.post(
+    response = requests.post(
         query,
         data=request_body,
         headers={"Content-Type": "application/json",
-                 "Authorization": "Bearer {}".format(rf.spotify_token)}
+                 "Authorization": "Bearer {}".format(self.spotify_token)}
     ).json()
 
-    if "error" in response_create_playlist:
-        print("the following error accured:")
-        print(response_create_playlist["error"])
+    if "error" in response:
+        print(f"the following error accured: {response['error']}")
 
-    add_items_to_playlist(response_create_playlist["id"], name, category)
+    return response

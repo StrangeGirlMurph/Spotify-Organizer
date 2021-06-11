@@ -89,6 +89,31 @@ class SpotifyUser:
             self.users_top_artists[range] = pd.DataFrame(
                 users_top_artists[range], columns=self.columns_for_artist_datafram)
 
+    def generate_a_playlist_for_an_artist(self, artist):
+        if self.users_saved_tracks[self.users_saved_tracks["artists"].apply(lambda i: artist in i)].empty:
+            print(
+                "You don't have any songs of that artist in your library, you misspelled the artist or forgot to collect the data.")
+            return
+        else:
+            self.collect_users_playlists()
+            if artist in self.users_playlists:
+                print("The Playlist for the artist or audio feature already exists.")
+                Replace_a_Playlists_Items(
+                    self, self.users_playlists[artist],
+                    self.users_saved_tracks[self.users_saved_tracks["artists"].apply(lambda i: artist in i)])
+            else:
+                playlist = Create_a_Playlist(
+                    self, artist, self.generate_description_for_artist_playlist(artist), public=False)
+                Add_Items_to_a_Playlist(
+                    self, playlist["id"], self.users_saved_tracks[self.users_saved_tracks["artists"].apply(lambda i: artist in i)])
+
+    def collect_users_playlists(self):
+        items = Get_a_List_of_Current_Users_Playlists(self)
+
+        self.users_playlists = {}
+        for playlist in items:
+            self.users_playlists[playlist["name"]] = playlist["id"]
+
     def filtered_list_from_track(self, track):
         # returns the most important parts of a track as a list
         return [
@@ -111,3 +136,6 @@ class SpotifyUser:
             artist["uri"],  # uri
             artist["id"]  # id
         ]
+
+    def generate_description_for_artist_playlist(self, name):
+        return f"All my favourite songs by or with {name} <3"
